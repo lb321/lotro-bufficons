@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<Plugin>
+	<Information>
+		<Name>BuffIcons</Name>
+		<Author>Lynx</Author>
+		<Version>0.1</Version>
+		<!-- <Image>LynxPlugins/BuffIcons/Resources/buffbars.tga</Image> -->
+	</Information>
+	<Package>LynxPlugins.BuffIcons.Main</Package>
+	<!--<Configuration Apartment="BuffIcons">
+	</Configuration>-->
+</Plugin>
