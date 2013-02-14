@@ -3,6 +3,7 @@
 import "Turbine";
 import "Turbine.Gameplay";
 import "Turbine.UI.Extensions";
+import "LynxPlugins.Utils";
 import "LynxPlugins.BuffIcons.BuffIconDisplay";
 
 --BuffIconWindow = class( Turbine.UI.Window );
@@ -21,17 +22,21 @@ function BuffIconWindow:Constructor()
 	self.buffs = { };
 	self.debuffs = { };
 
-	-- TODO: hook up events safely...and what is "args" really?
+	-- hook event callbacks
 	self.player = Turbine.Gameplay.LocalPlayer.GetInstance()
 	local effects = self.player:GetEffects();
 
-	effects.EffectAdded = function( sender, args )
-		self:AddEffect( args.Index );
-	end
+	LynxPlugins.Utils.AddCallback(effects, "EffectAdded",
+		function(sender, args)
+			self:AddEffect( args.Index );
+		end
+	);
 
-	effects.EffectRemoved = function( sender, args )
-		self:RemoveEffect( args.Effect );
-	end
+	LynxPlugins.Utils.AddCallback(effects, "EffectRemoved",
+		function(sender, args)
+			self:RemoveEffect( args.Effect );
+		end
+	);
 
 	-- load existing effects
 
