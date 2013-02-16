@@ -53,6 +53,19 @@ function BuffIconWindow:Constructor()
 	self:SetMouseVisible( false );
 	--self:SetOpacity( 1);
 	self:SetBackColor(0.5, 0, 0, 0);
+
+	self.KeyDown = function(sender,args)
+		-- hide UI event (F12 by default)
+		if (args.Action == 268435635) then
+			-- simple toggle as there is currently no other functionality to hide
+			if (self:IsVisible()) then
+				self:SetVisible(false);
+			else
+				self:SetVisible(true);
+			end
+		end
+	end
+	self:SetWantsKeyEvents(true);
 end
 
 function BuffIconWindow:AddEffect( effectIndex )
