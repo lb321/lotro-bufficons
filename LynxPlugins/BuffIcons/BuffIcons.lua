@@ -1,14 +1,15 @@
 
 import "Turbine";
 import "Turbine.Gameplay";
-import "Turbine.UI.Extensions";
+--import "Turbine.UI.Extensions";
+import "LynxPlugins.Utils";
 
 local baseImageID = 0x41007E35;
 
-BuffIconTest = class( Turbine.UI.Extensions.SimpleWindow );
+BuffIconTest = class( Turbine.UI.Window );
 
 function BuffIconTest:Constructor()
-	Turbine.UI.Extensions.SimpleWindow.Constructor( self );
+	Turbine.UI.Window.Constructor( self );
 
 	self:SetSize(64,64);
 	self:SetPosition(50,350);

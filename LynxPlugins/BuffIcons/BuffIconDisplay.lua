@@ -1,6 +1,7 @@
 
 import "Turbine";
 import "Turbine.Gameplay";
+import "LynxPlugins.Utils";
 -- import "Turbine.UI.Extensions";
 
 -- local baseImageID = 0x41007E35;

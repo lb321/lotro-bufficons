@@ -2,16 +2,13 @@
 
 import "Turbine";
 import "Turbine.Gameplay";
-import "Turbine.UI.Extensions";
 import "LynxPlugins.Utils";
 import "LynxPlugins.BuffIcons.BuffIconDisplay";
 
---BuffIconWindow = class( Turbine.UI.Window );
-BuffIconWindow = class( Turbine.UI.Extensions.SimpleWindow );
+BuffIconWindow = class( Turbine.UI.Window );
 
 function BuffIconWindow:Constructor()
-	--Turbine.UI.Window.Constructor( self );
-	Turbine.UI.Extensions.SimpleWindow.Constructor( self );
+	Turbine.UI.Window.Constructor( self );
 
 	self.spacing = 5;
 	self.iconSize = 36;
