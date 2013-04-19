@@ -1,8 +1,8 @@
 
 import "Turbine";
 import "Turbine.Gameplay";
+import "Turbine.UI.Lotro";
 import "LynxPlugins.Utils";
--- import "Turbine.UI.Extensions";
 
 -- local baseImageID = 0x41007E35;
 
@@ -157,7 +157,7 @@ function BuffIconDisplay:Destruct(effect)
 	self.overlayWindow:SetParent(nil);
 	self.elapsedOverlay:SetParent(nil);
 	self.holder:SetParent(nil);
-	self.icon:SetParent(nil);
+	--self.icon:SetParent(nil);
 	self:SetParent(nil);
 end
 
