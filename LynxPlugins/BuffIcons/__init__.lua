@@ -1,2 +1,3 @@
 
-import "LynxPlugins.BuffIcons.BuffIcons";
+import "LynxPlugins.BuffIcons.BuffIconDisplay";
+import "LynxPlugins.BuffIcons.BuffIconWindow";
