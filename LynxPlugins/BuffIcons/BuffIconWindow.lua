@@ -41,7 +41,7 @@ function BuffIconWindow:Constructor()
 
 	-- TODO: configurable placement
 	-- self:SetPosition(1200, 10);
-	Turbine.Shell.WriteLine("Screen width: " .. Turbine.UI.Display:GetWidth());
+	-- Turbine.Shell.WriteLine("Screen width: " .. Turbine.UI.Display:GetWidth());
 	self:SetPosition(Turbine.UI.Display:GetWidth() - 300 - self.width, 10);
 	self:SetSize(self.width, 40);
 	self:SetVisible( true );
@@ -72,10 +72,7 @@ end
 
 function BuffIconWindow:AddEffect( effectIndex )
 	local effect = self.player:GetEffects():Get( effectIndex );
-	-- TODO: everything...
 
-	--local effectDisplay = Turbine.UI.Lotro.EffectDisplay()
-	--effectDisplay:SetEffect( effect );
 	local effectDisplay = BuffIconDisplay();
 	effectDisplay:SetEffect( effect );
 	effectDisplay:SetParent( self );
@@ -117,13 +114,10 @@ function BuffIconWindow:RemoveEffect( effect )
 	if ( effect:IsDebuff() ) then list = self.debuffs end
 
 	for i = 1, #list do
-		-- TODO: adapt to actual BuffIcon class
 		local effectListItem = list[i]:GetEffect();
 
 		if ( effect == effectListItem ) then
 			local effectElement = list[i];
-			-- effectElement:SetVisible(false);
-			-- effectElement:SetParent(nil);
 			effectElement:Destruct();
 			table.remove(list, i);
 			break;
@@ -155,23 +149,6 @@ function BuffIconWindow:DoGridLayout(items, y_offset)
 end
 
 function BuffIconWindow:UpdateEffectsLayout()
-	--[[self.numBuffRows = math.ceil(#self.buffs / self.iconsPerLine);
-	local row = 0;
-	local col = 0;
-	local numItems = #self.buffs
-
-	for i=1, numItems do
-		local colCount = math.min(numItems - row * self.iconsPerLine, self.iconsPerLine);
-		local x = self.width - self.gridWidth * (col + 1);
-		local y = row * (self.gridHeight);
-		self.buffs[i]:SetPosition(x,y);
-
-		col = col + 1;
-		if col >= self.iconsPerLine and i < numItems then
-			col = 0;
-			row = row + 1;
-		end
-	end]]--
 	local buffHeight = self:DoGridLayout(self.buffs, 0);
 	local debuffHeight = self:DoGridLayout(self.debuffs, buffHeight + 16);
 	local newHeight = buffHeight + 16 + debuffHeight;
