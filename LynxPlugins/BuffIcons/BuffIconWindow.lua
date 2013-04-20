@@ -23,17 +23,15 @@ function BuffIconWindow:Constructor()
 	self.player = Turbine.Gameplay.LocalPlayer.GetInstance()
 	local effects = self.player:GetEffects();
 
-	LynxPlugins.Utils.AddCallback(effects, "EffectAdded",
-		function(sender, args)
-			self:AddEffect( args.Index );
-		end
-	);
+	self.EffectAddedCallback = function(sender, args)
+		self:AddEffect( args.Index );
+	end
+	self.EffectRemovedCallback = function(sender, args)
+		self:RemoveEffect( args.Effect );
+	end
 
-	LynxPlugins.Utils.AddCallback(effects, "EffectRemoved",
-		function(sender, args)
-			self:RemoveEffect( args.Effect );
-		end
-	);
+	LynxPlugins.Utils.AddCallback(effects, "EffectAdded", self.EffectAddedCallback);
+	LynxPlugins.Utils.AddCallback(effects, "EffectRemoved", self.EffectRemovedCallback);
 
 	-- load existing effects
 
@@ -63,6 +61,13 @@ function BuffIconWindow:Constructor()
 		end
 	end
 	self:SetWantsKeyEvents(true);
+end
+
+function BuffIconWindow:Destruct()
+	-- remove callbacks
+	local effects = self.player:GetEffects();
+	LynxPlugins.Utils.RemoveCallback(effects, "EffectAdded", self.EffectAddedCallback);
+	LynxPlugins.Utils.RemoveCallback(effects, "EffectRemoved", self.EffectRemovedCallback);
 end
 
 function BuffIconWindow:AddEffect( effectIndex )
