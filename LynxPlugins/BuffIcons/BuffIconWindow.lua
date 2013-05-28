@@ -7,15 +7,13 @@ import "LynxPlugins.BuffIcons.BuffIconDisplay";
 
 BuffIconWindow = class( Turbine.UI.Window );
 
-function BuffIconWindow:Constructor()
+function BuffIconWindow:Constructor(cfgManager)
 	Turbine.UI.Window.Constructor( self );
 
-	self.spacing = 5;
+	self.initialized = false;
+	self.sm = cfgManager;
+
 	self.iconSize = 36;
-	self.iconsPerLine = 10;
-	self.gridWidth = self.iconSize + self.spacing;
-	self.gridHeight = 52 + self.spacing;
-	self.width = self.iconsPerLine * self.gridWidth;
 	self.buffs = { };
 	self.debuffs = { };
 
@@ -29,25 +27,17 @@ function BuffIconWindow:Constructor()
 	self.EffectRemovedCallback = function(sender, args)
 		self:RemoveEffect( args.Effect );
 	end
+	self.SettingChangedCallback = function(sender, args)
+		-- TODO: temporary hack
+		self:UpdateConfiguration(sender.currentSettings);
+	end
 
 	LynxPlugins.Utils.AddCallback(effects, "EffectAdded", self.EffectAddedCallback);
 	LynxPlugins.Utils.AddCallback(effects, "EffectRemoved", self.EffectRemovedCallback);
+	LynxPlugins.Utils.AddCallback(self.sm, "SettingChanged", self.SettingChangedCallback);
 
-	-- load existing effects
-
-	for i = 1, effects:GetCount() do
-		self:AddEffect( i );
-	end
-
-	-- TODO: configurable placement
-	-- self:SetPosition(1200, 10);
-	-- Turbine.Shell.WriteLine("Screen width: " .. Turbine.UI.Display:GetWidth());
-	self:SetPosition(Turbine.UI.Display:GetWidth() - 300 - self.width, 10);
-	self:SetSize(self.width, 40);
 	self:SetVisible( true );
 	self:SetMouseVisible( false );
-	--self:SetOpacity( 1);
-	self:SetBackColor(0.5, 0, 0, 0);
 
 	self.KeyDown = function(sender,args)
 		-- hide UI event (F12 by default)
@@ -68,9 +58,48 @@ function BuffIconWindow:Destruct()
 	local effects = self.player:GetEffects();
 	LynxPlugins.Utils.RemoveCallback(effects, "EffectAdded", self.EffectAddedCallback);
 	LynxPlugins.Utils.RemoveCallback(effects, "EffectRemoved", self.EffectRemovedCallback);
+	LynxPlugins.Utils.RemoveCallback(self.sm, "SettingChanged", self.SettingChangedCallback);
+end
+
+function BuffIconWindow:Initialize()
+	if (self.initialized) then
+		-- re-initialize
+		self:ClearEffects();
+	end
+
+	-- load settings
+	self.spacing = self.sm:GetSetting("spacing");
+	self.iconsPerLine = self.sm:GetSetting("iconsPerLine");
+	local x = self.sm:GetSetting("positionX");
+	local y = self.sm:GetSetting("positionY");
+
+	-- derive some often used values
+	self.gridWidth = self.iconSize + self.spacing;
+	self.gridHeight = 52 + self.spacing;
+	self.width = self.iconsPerLine * self.gridWidth;
+
+	self:SetPosition(Turbine.UI.Display:GetWidth() - x - self.width, y);
+	self:SetSize(self.width, self.gridHeight);
+	self.initialized = true;
+	local effects = self.player:GetEffects();
+	for i = 1, effects:GetCount() do
+		self:AddEffect( i );
+	end
+
+end
+
+function BuffIconWindow:UpdateConfiguration( settings )
+	self.spacing = settings.spacing;
+	self.iconsPerLine = settings.iconsPerLine;
+	self.gridWidth = self.iconSize + self.spacing;
+	self.gridHeight = 52 + self.spacing;
+	self.width = self.iconsPerLine * self.gridWidth;
+
+	self:SetPosition(Turbine.UI.Display:GetWidth() - settings.positionX - self.width, settings.positionY);
 end
 
 function BuffIconWindow:AddEffect( effectIndex )
+	if not self.initialized then return end
 	local effect = self.player:GetEffects():Get( effectIndex );
 
 	local effectDisplay = BuffIconDisplay();
@@ -110,6 +139,7 @@ function BuffIconWindow:AddEffect( effectIndex )
 end
 
 function BuffIconWindow:RemoveEffect( effect )
+	if not self.initialized then return end
 	local list = self.buffs;
 	if ( effect:IsDebuff() ) then list = self.debuffs end
 
@@ -125,6 +155,17 @@ function BuffIconWindow:RemoveEffect( effect )
 	end
 
 	self:UpdateEffectsLayout();
+end
+
+function BuffIconWindow:ClearEffects()
+	for i, effect in pairs(self.buffs) do
+		effect:Destruct();
+	end
+	for i, effect in pairs(self.debuffs) do
+		effect:Destruct();
+	end
+	buffs = {};
+	debuffs = {};
 end
 
 function BuffIconWindow:DoGridLayout(items, y_offset)
@@ -154,6 +195,6 @@ function BuffIconWindow:UpdateEffectsLayout()
 	local newHeight = buffHeight + 16 + debuffHeight;
 	if (newHeight ~= self.height) then
 		self:SetHeight(newHeight)
-		self.hight = newHeight
+		self.height = newHeight
 	end
 end
