@@ -117,6 +117,11 @@ function NumericInput:Constructor()
 	self.rightArrow.Action = function(sender, args) self:Increment(); end;
 end
 
+function NumericInput:SetLimits(lower, upper)
+	self.lowerLimit = lower;
+	self.upperLimit = upper;
+end
+
 function NumericInput:SetValue(val)
 	self.numericValue = math.floor(val);
 	self.numBox:SetText(tostring(self.numericValue));
@@ -129,13 +134,17 @@ end
 function NumericInput:UpdateValue()
 	local val = tonumber(self.numBox:GetText());
 	if (val == nil) then
-		val = 0;
-		self.numBox:SetText("0");
+		val = self.lowerLimit or 0;
 	else
 		-- no way to prevent float input unfortunately
 		val = math.floor(val);
-		self.numBox:SetText(tostring(val));
+		if (self.lowerLimit ~= nil and val < self.lowerLimit) then
+			val = self.lowerLimit;
+		elseif (self.upperLimit ~= nil and val > self.upperLimit) then
+			val = self.upperLimit;
+		end
 	end
+	self.numBox:SetText(tostring(val));
 	if (val ~= self.numericValue) then
 		self.numericValue = val;
 		ExecuteCallback(self, "ValueChanged", {Value = val});
@@ -143,13 +152,21 @@ function NumericInput:UpdateValue()
 end
 
 function NumericInput:Increment()
-	self.numericValue = self.numericValue + 1;
+	local val = self.numericValue + 1;
+	if (self.upperLimit ~= nil and val > self.upperLimit) then
+		return;
+	end
+	self.numericValue = val;
 	self.numBox:SetText(tostring(self.numericValue));
 	ExecuteCallback(self, "ValueChanged", {Value = self.numericValue});
 end
 
 function NumericInput:Decrement()
-	self.numericValue = self.numericValue - 1;
+	local val = self.numericValue - 1;
+	if (self.lowerLimit ~= nil and val < self.lowerLimit) then
+		return;
+	end
+	self.numericValue = val;
 	self.numBox:SetText(tostring(self.numericValue));
 	ExecuteCallback(self, "ValueChanged", {Value = self.numericValue});
 end
