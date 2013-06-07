@@ -14,7 +14,7 @@ function AdjustButton:Constructor(leftSide)
 	end
 	self.pressed = false;
 	self:SetSize(20, 20);
-	self:SetBackground(self.baseImageID + 1);
+	self:SetBackground(self.baseImageID + 2);
 	self:SetBlendMode(Turbine.UI.BlendMode.AlphaBlend);
 
 	self.MouseDown = self.MouseDownCallback;
@@ -34,7 +34,7 @@ function AdjustButton.MouseDownCallback(self, args)
 
 	if (args.Button == Turbine.UI.MouseButton.Left) then
 		self.pressed = true;
-		self:SetBackground(self.baseImageID + 2);
+		self:SetBackground(self.baseImageID + 1);
 	end
 end
 
@@ -50,7 +50,7 @@ function AdjustButton.MouseUpCallback(self, args)
 			self:SetBackground(self.baseImageID + 3);
 		else
 			-- default
-			self:SetBackground(self.baseImageID + 1);
+			self:SetBackground(self.baseImageID + 2);
 			return;
 		end
 		ExecuteCallback(self, "Action", args);
@@ -63,7 +63,7 @@ function AdjustButton.MouseEnterCallback(self, args)
 	end
 	if self.pressed then
 		-- pressed
-		self:SetBackground(self.baseImageID + 2);
+		self:SetBackground(self.baseImageID + 1);
 	else
 		-- rollover
 		self:SetBackground(self.baseImageID + 3);
@@ -79,7 +79,7 @@ function AdjustButton.MouseLeaveCallback(self, args)
 		self:SetBackground(self.baseImageID + 3);
 	else
 		-- default
-		self:SetBackground(self.baseImageID + 1);
+		self:SetBackground(self.baseImageID + 2);
 	end
 end
 
