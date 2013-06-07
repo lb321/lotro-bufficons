@@ -120,7 +120,7 @@ function ComboBox:MouseClick(args)
 end
 
 function ComboBox:FireEvent()
-    LynxPlugins.Utils.ExecuteCallback(self, "SelectedIndexChanged", {selection=self:GetSelection()});
+    LynxPlugins.Utils.ExecuteCallback(self, "SelectedIndexChanged", {Index=self.selection, Value=self:GetSelection()});
 end
 
 function ComboBox:ItemSelected(index)
@@ -195,7 +195,7 @@ end
 function ComboBox:ClearItems()
     self.listBox:ClearItems(); -- does this work now?
     self.selection = -1;
-    self:FireEvent();
+    --self:FireEvent();
 end
 
 function ComboBox:SetSelection(value)
@@ -203,7 +203,7 @@ function ComboBox:SetSelection(value)
         local item = self.listBox:GetItem(i);
         if (item.value == value) then
             self:ItemSelected(i);
-            self:FireEvent();
+            --self:FireEvent();
             break;
         end
     end

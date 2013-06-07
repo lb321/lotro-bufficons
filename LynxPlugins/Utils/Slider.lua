@@ -266,7 +266,7 @@ function Slider:UpdateValueFromPosition()
     self.value = (math.floor(x / ppv) * self.step) + self.min;
     self.valueLabel:SetText(string.format(self.format, self.value));
 
-    LynxPlugins.Utils.ExecuteCallback(self, "ValueChanged", {value=self.value});
+    LynxPlugins.Utils.ExecuteCallback(self, "ValueChanged", {Value=self.value});
 end
 
 function Slider:UpdatePositionFromValue()
@@ -282,7 +282,7 @@ function Slider:SetValue(value)
     self.valueLabel:SetText(string.format(self.format, self.value));
     self:UpdatePositionFromValue();
 
-    LynxPlugins.Utils.ExecuteCallback(self, "ValueChanged", {value=self.value});
+    -- LynxPlugins.Utils.ExecuteCallback(self, "ValueChanged", {Value=self.value});
 end
 
 function Slider:GetValue()
