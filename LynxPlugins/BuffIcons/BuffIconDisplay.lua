@@ -13,6 +13,7 @@ function BuffIconDisplay:Constructor()
 
 	-- general members
 	self.currentClock = 0;
+	self.TimeFormatFunction = TimeFormat_fractionalAtLeadingOne;
 
 	self:SetSize(36,52);
 	-- self:SetPosition(50,350);
@@ -37,7 +38,7 @@ function BuffIconDisplay:Constructor()
 	self.overlayWindow:SetPosition( 2, 2 );
 	self.overlayWindow:SetSize( 32, 32 );
 	self.overlayWindow:SetOpacity( 0.6 );
-	self.overlayWindow:SetBlendMode( 4 ); -- 4 adds opaque part (yay!)
+	self.overlayWindow:SetBlendMode( Turbine.UI.BlendMode.AlphaBlend ); -- 4 adds opaque part (yay!)
 	self.overlayWindow:SetVisible( true );
 
 	-- holder (test)
@@ -173,6 +174,10 @@ function BuffIconDisplay:GetEffect(effect)
 	return self.icon:GetEffect();
 end
 
+function BuffIconDisplay:SetOverlayOpacity(value)
+	self.overlayWindow:SetOpacity(value);
+end
+
 TimeFormat_compact = function(value)
 	if (value < 60) then
 		return string.format("%d s", value)
@@ -185,6 +190,67 @@ TimeFormat_compact = function(value)
 	end
 end
 
+TimeFormat_fractionalAtLeadingOne = function(value)
+	if (value < 60) then
+		return string.format("%d s", value)
+	elseif (value < 3600) then
+		if (value < 120) then
+			return string.format("1.%d m", (value-60)/6)
+		else
+			return string.format("%d m", value/60)
+		end
+	elseif (value < 86400) then
+		if (value < 7200) then
+			return string.format("1.%d h", (value-3600)/360)
+		else
+			return string.format("%d h", value/3600)
+		end
+	else
+		if (value < 172800) then
+			return string.format("1.%d d", (value-86400)/8640)
+		else
+			return string.format("%d d", value/86400)
+		end
+	end
+end
+
+TimeFormat_doubleDigitPrecision = function(value)
+	if (value < 60) then
+		return string.format("%d s", value)
+	elseif (value < 3600) then
+		if (value < 600) then
+			local i,f = math.modf(value/60)
+			return string.format("%d.%d m", i, f*10)
+		else
+			return string.format("%d m", value/60)
+		end
+	elseif (value < 86400) then
+		if (value < 36000) then
+			local i,f = math.modf(value/3600)
+			return string.format("%d.%d h", i, f*10)
+		else
+			return string.format("%d h", value/3600)
+		end
+	else
+		if (value < 864000) then
+			local i,f = math.modf(value/86400)
+			return string.format("%d.%d d", i, f*10)
+		else
+			return string.format("%d d", value/86400)
+		end
+	end
+end
+
+function BuffIconDisplay:SetTimeFormat(format)
+	if format == 1 then
+		self.TimeFormatFunction = TimeFormat_compact;
+	elseif format == 2 then
+		self.TimeFormatFunction = TimeFormat_fractionalAtLeadingOne;
+	else
+		self.TimeFormatFunction = TimeFormat_doubleDigitPrecision;
+	end
+end
+
 function BuffIconDisplay:Update(args)
 	local effect = self.icon:GetEffect();
 	local gameTime = Turbine.Engine.GetGameTime();
@@ -193,7 +259,7 @@ function BuffIconDisplay:Update(args)
 	local remaining = effect:GetDuration() - elapsedTime;
 
 	-- TODO: only recreate timeString when it actually changed
-	local timeString = TimeFormat_compact(remaining)
+	local timeString = self.TimeFormatFunction(remaining);
 	self.countdown:SetText(timeString)
 
 	-- update clock overlay
