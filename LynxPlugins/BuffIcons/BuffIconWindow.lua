@@ -28,8 +28,12 @@ function BuffIconWindow:Constructor(cfgManager)
 		self:RemoveEffect( args.Effect );
 	end
 	self.SettingChangedCallback = function(sender, args)
-		-- TODO: temporary hack
-		self:UpdateConfiguration(sender.currentSettings);
+		if not args.Key then
+			-- unspecified amount of settings changed
+			self:Initialize();
+		else
+			self:UpdateSetting(args.Key, args.Value);
+		end
 	end
 
 	LynxPlugins.Utils.AddCallback(effects, "EffectAdded", self.EffectAddedCallback);
@@ -68,34 +72,81 @@ function BuffIconWindow:Initialize()
 	end
 
 	-- load settings
+	self.x = self.sm:GetSetting("positionX");
+	self.y = self.sm:GetSetting("positionY");
 	self.spacing = self.sm:GetSetting("spacing");
 	self.iconsPerLine = self.sm:GetSetting("iconsPerLine");
-	local x = self.sm:GetSetting("positionX");
-	local y = self.sm:GetSetting("positionY");
+	self.overlayOpacity = self.sm:GetSetting("overlayOpacity") * 0.01;
+	self.showFractional = self.sm:GetSetting("showFractional");
+	self.sortCriteria = self.sm:GetSetting("sortCriteria");
+	self.compare1 = self:GetCompareFunc(self.sortCriteria);
+	if not self.compare1 then
+		self.compare1 = BuffIconWindow.CompareRemainingDuration;
+	end
 
-	-- derive some often used values
-	self.gridWidth = self.iconSize + self.spacing;
-	self.gridHeight = 52 + self.spacing;
-	self.width = self.iconsPerLine * self.gridWidth;
+	self:UpdateWindowGeometry();
 
-	self:SetPosition(Turbine.UI.Display:GetWidth() - x - self.width, y);
-	self:SetSize(self.width, self.gridHeight);
 	self.initialized = true;
 	local effects = self.player:GetEffects();
 	for i = 1, effects:GetCount() do
 		self:AddEffect( i );
 	end
-
 end
 
-function BuffIconWindow:UpdateConfiguration( settings )
-	self.spacing = settings.spacing;
-	self.iconsPerLine = settings.iconsPerLine;
+function BuffIconWindow:UpdateWindowGeometry()
+	-- derive some often used values
 	self.gridWidth = self.iconSize + self.spacing;
 	self.gridHeight = 52 + self.spacing;
 	self.width = self.iconsPerLine * self.gridWidth;
 
-	self:SetPosition(Turbine.UI.Display:GetWidth() - settings.positionX - self.width, settings.positionY);
+	self:SetPosition(Turbine.UI.Display:GetWidth() - self.x - self.width, self.y);
+	self:SetSize(self.width, self.gridHeight);
+end
+
+function BuffIconWindow:GetCompareFunc(value)
+	if value == 1 then
+		return BuffIconWindow.CompareDuration;
+	elseif value == 2 then
+		return BuffIconWindow.CompareRemainingDuration;
+	elseif value == 3 then
+		return BuffIconWindow.CompareIcon;
+	end
+	return nil;
+end
+
+function BuffIconWindow:UpdateSetting(name, value)
+	if name == "sortCriteria" then
+		-- need to reload all effects, so just do full initialization
+		self:Initialize();
+	elseif name == "positionX" then
+		self.x = value;
+		self:SetLeft(Turbine.UI.Display:GetWidth() - value - self.width);
+	elseif name == "positionY" then
+		self.y = value;
+		self:SetTop(value);
+	elseif name == "iconsPerLine" then
+		self.iconsPerLine = value;
+		self:UpdateWindowGeometry();
+	elseif name == "spacing" then
+		self.spacing = value;
+		self:UpdateWindowGeometry();
+	elseif name == "overlayOpacity" then
+		self.overlayOpacity = value * 0.01;
+		for k,effect in pairs(self.buffs) do
+			effect:SetOverlayOpacity(self.overlayOpacity);
+		end
+		for k,effect in pairs(self.debuffs) do
+			effect:SetOverlayOpacity(self.overlayOpacity);
+		end
+	elseif name == "showFractional" then
+		self.showFractional = value;
+		for k,effect in pairs(self.buffs) do
+			effect:SetTimeFormat(value);
+		end
+		for k,effect in pairs(self.debuffs) do
+			effect:SetTimeFormat(value);
+		end
+	end
 end
 
 function BuffIconWindow:AddEffect( effectIndex )
@@ -104,11 +155,13 @@ function BuffIconWindow:AddEffect( effectIndex )
 
 	local effectDisplay = BuffIconDisplay();
 	effectDisplay:SetEffect( effect );
+	effectDisplay:SetOverlayOpacity(self.overlayOpacity);
+	effectDisplay:SetTimeFormat(self.showFractional);
 	effectDisplay:SetParent( self );
 	-- effectDisplay:SetSize( self.effectSize, self.effectSize );
 
 	local insertionList = nil;
-	local effectEndTime = effect:GetStartTime() + effect:GetDuration();
+--	local effectEndTime = effect:GetStartTime() + effect:GetDuration();
 
 	if ( effectDisplay:GetEffect():IsDebuff() ) then
 		insertionList = self.debuffs;
@@ -120,9 +173,10 @@ function BuffIconWindow:AddEffect( effectIndex )
 
 	for i = 1, #insertionList do
 		local testEffect = insertionList[i]:GetEffect();
-		local testEffectEndTime = testEffect:GetStartTime() + testEffect:GetDuration();
+--		local testEffectEndTime = testEffect:GetStartTime() + testEffect:GetDuration();
 
-		if ( effectEndTime > testEffectEndTime ) then
+--		if ( effectEndTime > testEffectEndTime ) then
+		if (self:CompareEffects(effect, testEffect) > 0) then
 			insertAt = i;
 			break;
 		end
@@ -164,8 +218,8 @@ function BuffIconWindow:ClearEffects()
 	for i, effect in pairs(self.debuffs) do
 		effect:Destruct();
 	end
-	buffs = {};
-	debuffs = {};
+	self.buffs = {};
+	self.debuffs = {};
 end
 
 function BuffIconWindow:DoGridLayout(items, y_offset)
@@ -197,4 +251,36 @@ function BuffIconWindow:UpdateEffectsLayout()
 		self:SetHeight(newHeight)
 		self.height = newHeight
 	end
+end
+
+function BuffIconWindow:CompareEffects(effect1, effect2)
+	local result = self.compare1(effect1, effect2)
+	if result ~=0 or self.compare2 == nil then
+		return result;
+	end
+	return self.compare2(effect1, effect2);
+end
+
+function BuffIconWindow.CompareDuration(effect1, effect2)
+	local d1 = effect1:GetDuration();
+	local d2 = effect2:GetDuration();
+	if d1 < d2 then return -1;
+	elseif d2 < d1 then return 1; end
+	return 0;
+end
+
+function BuffIconWindow.CompareRemainingDuration(effect1, effect2)
+	local d1 = effect1:GetStartTime() + effect1:GetDuration();
+	local d2 = effect2:GetStartTime() + effect2:GetDuration();
+	if d1 < d2 then return -1;
+	elseif d2 < d1 then return 1; end
+	return 0;
+end
+
+function BuffIconWindow.CompareIcon(effect1, effect2)
+	local i1 = effect1:GetIcon();
+	local i2 = effect2:GetIcon();
+	if i1 < i2 then return -1;
+	elseif i2 < i1 then return 1; end
+	return 0;
 end

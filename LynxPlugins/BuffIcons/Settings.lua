@@ -13,6 +13,9 @@ ConfigurationManager.defaultSettings =
 	positionX = 300,
 	positionY = 10,
 	spacing = 5,
+	sortCriteria = 2,
+	showFractional = 2,
+	overlayOpacity = 60
 }
 
 function ConfigurationManager:Constructor()
