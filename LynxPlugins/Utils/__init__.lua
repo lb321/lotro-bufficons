@@ -5,3 +5,4 @@ import "LynxPlugins.Utils.DataConvert";
 import "LynxPlugins.Utils.NumericInput";
 import "LynxPlugins.Utils.Slider";
 import "LynxPlugins.Utils.ComboBox";
+import "LynxPlugins.Utils.Label";
