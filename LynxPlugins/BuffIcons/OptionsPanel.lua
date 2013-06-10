@@ -19,11 +19,9 @@ function OptionPanel:Constructor(cfgManager)
 		end
 	end
 
-	self.positionXLabel = Turbine.UI.Label();
-	self.positionXLabel:SetFont(Turbine.UI.Lotro.Font.TrajanPro14);
+	self.positionXLabel = LynxPlugins.Utils.Label("Horizontal Position");
 	self.positionXLabel:SetSize(180, 20);
 	self.positionXLabel:SetPosition(10, 10);
-	self.positionXLabel:SetText("Horizontal Position");
 	self.positionXLabel:SetParent(self.mainPanel);
 
 	self.positionX = LynxPlugins.Utils.NumericInput();
@@ -32,11 +30,9 @@ function OptionPanel:Constructor(cfgManager)
 	self.positionX:SetParent(self.mainPanel);
 	self.positionX.ValueChanged = self.ValueChangedCallback;
 
-	self.positionYLabel = Turbine.UI.Label();
-	self.positionYLabel:SetFont(Turbine.UI.Lotro.Font.TrajanPro14);
+	self.positionYLabel = LynxPlugins.Utils.Label("Vertical Position");
 	self.positionYLabel:SetSize(180, 20);
 	self.positionYLabel:SetPosition(10, 40);
-	self.positionYLabel:SetText("Vertical Position");
 	self.positionYLabel:SetParent(self.mainPanel);
 
 	self.positionY = LynxPlugins.Utils.NumericInput();
@@ -45,6 +41,11 @@ function OptionPanel:Constructor(cfgManager)
 	self.positionY:SetParent(self.mainPanel);
 	self.positionY.ValueChanged = self.ValueChangedCallback;
 
+	self.iconsPerLineLabel = LynxPlugins.Utils.Label("Icons per Line");
+	self.iconsPerLineLabel:SetSize(180, 20);
+	self.iconsPerLineLabel:SetPosition(10, 70);
+	self.iconsPerLineLabel:SetParent(self.mainPanel);
+
 	self.iconsPerLine = LynxPlugins.Utils.NumericInput();
 	self.iconsPerLine:SetValue(self.sm:GetSetting("iconsPerLine"));
 	self.iconsPerLine:SetLimits(2, 20);
@@ -52,16 +53,26 @@ function OptionPanel:Constructor(cfgManager)
 	self.iconsPerLine:SetParent(self.mainPanel);
 	self.iconsPerLine.ValueChanged = self.ValueChangedCallback;
 
+	self.sortCriteriaLabel = LynxPlugins.Utils.Label("Sort Criterion");
+	self.sortCriteriaLabel:SetSize(180, 20);
+	self.sortCriteriaLabel:SetPosition(10, 100);
+	self.sortCriteriaLabel:SetParent(self.mainPanel);
+
 	self.sortCriteria = LynxPlugins.Utils.ComboBox();
-	self.sortCriteria:SetSize(150, 20);
+	self.sortCriteria:SetSize(160, 20);
 	self.sortCriteria:SetPosition(200, 100);
 	self.sortCriteria:AddItem("Duration", 1);
 	self.sortCriteria:AddItem("Remaining Duration", 2);
 	self.sortCriteria:SetParent(self.mainPanel);
 	self.sortCriteria.SelectedIndexChanged = self.ValueChangedCallback;
 
+	self.showFractionalLabel = LynxPlugins.Utils.Label("Show fractional Units");
+	self.showFractionalLabel:SetSize(180, 20);
+	self.showFractionalLabel:SetPosition(10, 130);
+	self.showFractionalLabel:SetParent(self.mainPanel);
+
 	self.showFractional = LynxPlugins.Utils.ComboBox();
-	self.showFractional:SetSize(150, 20);
+	self.showFractional:SetSize(160, 20);
 	self.showFractional:SetPosition(200, 130);
 	self.showFractional:AddItem("Never", 1);
 	self.showFractional:AddItem("Only 1.x", 2);
@@ -72,7 +83,7 @@ function OptionPanel:Constructor(cfgManager)
 	self.opacitySlider = LynxPlugins.Utils.Slider();
 	self.opacitySlider:SetParent(self.mainPanel);
 	self.opacitySlider:SetText("Overlay Opacity");
-	self.opacitySlider:SetPosition(10, 160);
+	self.opacitySlider:SetPosition(10, 170);
 	self.opacitySlider:SetSize(350, 40);
 	self.opacitySlider:SetStep(1);
 	self.opacitySlider:SetMin(0);
@@ -91,8 +102,8 @@ function OptionPanel:Constructor(cfgManager)
 
 	self.revertButton = Turbine.UI.Lotro.Button();
 	self.revertButton:SetText("Revert");
-	self.revertButton:SetSize(80, 22);
-	self.revertButton:SetPosition(10, 200);
+	self.revertButton:SetSize(110, 22);
+	self.revertButton:SetPosition(10, 220);
 	self.revertButton:SetEnabled(false);
 	self.revertButton:SetParent(self.mainPanel);
 	self.revertButton.Click = function(sender, args)
@@ -107,8 +118,8 @@ function OptionPanel:Constructor(cfgManager)
 
 	self.defaultButton = Turbine.UI.Lotro.Button();
 	self.defaultButton:SetText("Default");
-	self.defaultButton:SetSize(80, 22);
-	self.defaultButton:SetPosition(95, 200);
+	self.defaultButton:SetSize(110, 22);
+	self.defaultButton:SetPosition(125, 220);
 	self.defaultButton:SetParent(self.mainPanel);
 	self.defaultButton.Click = function(sender, args)
 		-- TODO: confirmation dialogue
@@ -119,8 +130,8 @@ function OptionPanel:Constructor(cfgManager)
 
 	self.accepttButton = Turbine.UI.Lotro.Button();
 	self.accepttButton:SetText("Accept");
-	self.accepttButton:SetSize(120, 22);
-	self.accepttButton:SetPosition(270, 200);
+	self.accepttButton:SetSize(110, 22);
+	self.accepttButton:SetPosition(240, 220);
 	self.accepttButton:SetParent(self.mainPanel);
 	self.accepttButton.Click = function(sender, args)
 		self.sm:SaveSettings();
