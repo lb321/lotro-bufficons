@@ -9,6 +9,7 @@ ConfigurationManager = class();
 
 ConfigurationManager.defaultSettings =
 {
+	version = 0.03,
 	iconsPerLine = 10,
 	positionX = 300,
 	positionY = 10,
@@ -39,19 +40,28 @@ end
 
 function ConfigurationManager:SaveSettings()
 	-- TODO save
-	Turbine.PluginData.Save(Turbine.DataScope.Account, "BuffIcons_Settings", self.currentSettings)
+	local enc_settings = LynxPlugins.Utils.convSave(self.currentSettings);
+	Turbine.PluginData.Save(Turbine.DataScope.Account, "BuffIcons_Settings", enc_settings)
 	--
 	CopySettings(self.savedSettings, self.currentSettings);
 end
 
 function ConfigurationManager:LoadSettings()
 	-- TODO load
-	local settings = Turbine.PluginData.Load(Turbine.DataScope.Account, "BuffIcons_Settings")
-	if settings ~= nil then
-		CopySettings(self.currentSettings, settings);
+	local raw_settings = Turbine.PluginData.Load(Turbine.DataScope.Account, "BuffIcons_Settings")
+	if raw_settings ~= nil then
+		if raw_settings["s:version"] ~= nil then
+			local settings = LynxPlugins.Utils.convLoad(raw_settings);
+			CopySettings(self.currentSettings, settings);
+		else
+			-- first piece of legacy code...
+			for k,v in pairs(raw_settings) do
+				if type(k) == "number" then raw_settings[k] = nil; end
+			end
+			CopySettings(self.currentSettings, raw_settings);
+		end
+		CopySettings(self.savedSettings, self.currentSettings);
 	end
-	--
-	CopySettings(self.savedSettings, self.currentSettings);
 end
 
 function ConfigurationManager:GetSetting(name)
