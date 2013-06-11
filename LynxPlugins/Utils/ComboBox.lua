@@ -6,8 +6,8 @@ import "Turbine.UI";
 ComboBox = class(Turbine.UI.Control);
 
 -- colors
-ComboBox.HighlightColor = Turbine.UI.Color(232/255, 175/255, 72/255);
-ComboBox.SelectionColor = Turbine.UI.Color(203/255, 195/255, 52/255);
+ComboBox.HighlightColor = Turbine.UI.Color(249/255, 174/255, 7/255);
+ComboBox.SelectionColor = Turbine.UI.Color(252/255, 235/255, 1/255);
 ComboBox.ItemColor = Turbine.UI.Color(245/255, 222/255, 147/255);
 ComboBox.DisabledColor = Turbine.UI.Color(162/255, 162/255, 162/255);
 ComboBox.BlackColor = Turbine.UI.Color(1, 0, 0, 0);
@@ -84,7 +84,7 @@ function ComboBox:MouseEnter(args)
     end
 
     self.label:SetFontStyle(Turbine.UI.FontStyle.Outline);
-    self.label:SetForeColor(ComboBox.ItemColor);
+	self.label:SetForeColor(Turbine.UI.Color.White);
     self.label:SetText(self.label:GetText());
 
     self.arrow:SetBackground(self.dropped and ComboBox.DropdownArrowOpenRollover or ComboBox.DropdownArrowClosedRollover);
@@ -99,6 +99,8 @@ function ComboBox:MouseLeave(args)
     self.label:SetFontStyle(Turbine.UI.FontStyle.None);
     if (self.dropped) then
         self.label:SetForeColor(ComboBox.SelectionColor);
+	else
+		self.label:SetForeColor(ComboBox.ItemColor);
     end
     self.label:SetText(self.label:GetText());
 
@@ -150,13 +152,15 @@ function ComboBox:AddItem(text, value)
 
     listItem.MouseEnter = function(sender, args)
         sender:SetFontStyle(Turbine.UI.FontStyle.Outline);
-        sender:SetForeColor(ComboBox.ItemColor);
+		sender:SetForeColor(Turbine.UI.Color.White);
         sender:SetText(sender:GetText());
     end
     listItem.MouseLeave = function(sender, args)
         sender:SetFontStyle(Turbine.UI.FontStyle.None);
         if (self.listBox:IndexOfItem(sender) == self.selection) then
             sender:SetForeColor(ComboBox.SelectionColor);
+		else
+			sender:SetForeColor(ComboBox.ItemColor);
         end
         sender:SetText(sender:GetText());
     end
