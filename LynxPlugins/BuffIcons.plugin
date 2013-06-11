@@ -3,7 +3,7 @@
 	<Information>
 		<Name>BuffIcons</Name>
 		<Author>Lynx</Author>
-		<Version>0.2</Version>
+		<Version>0.3</Version>
 		<!-- <Image>LynxPlugins/BuffIcons/Resources/buffbars.tga</Image> -->
 	</Information>
 	<Package>LynxPlugins.BuffIcons.Main</Package>
