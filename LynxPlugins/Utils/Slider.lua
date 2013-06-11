@@ -277,12 +277,14 @@ function Slider:UpdatePositionFromValue()
     self.slider:SetPosition(x, 0);
 end
 
-function Slider:SetValue(value)
+function Slider:SetValue(value, trigger)
     self.value = value;
     self.valueLabel:SetText(string.format(self.format, self.value));
     self:UpdatePositionFromValue();
 
-    -- LynxPlugins.Utils.ExecuteCallback(self, "ValueChanged", {Value=self.value});
+	if trigger then
+		LynxPlugins.Utils.ExecuteCallback(self, "ValueChanged", {Value=self.value});
+	end
 end
 
 function Slider:GetValue()
@@ -310,7 +312,7 @@ function Slider:Increment()
     if (value > self.max) then
         value = self.max;
     end
-    self:SetValue(value);
+    self:SetValue(value, true);
 end
 
 function Slider:Decrement()
@@ -318,5 +320,5 @@ function Slider:Decrement()
     if (value < self.min) then
         value = self.min;
     end
-    self:SetValue(value);
+    self:SetValue(value, true);
 end
