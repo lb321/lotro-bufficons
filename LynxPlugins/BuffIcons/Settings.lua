@@ -42,9 +42,7 @@ end
 
 function ConfigurationManager:SaveSettings()
 	-- TODO save
-	Turbine.Shell.WriteLine("Current lockPosition='" .. tostring(self.currentSettings.lockPosition) .. "'");
 	local enc_settings = LynxPlugins.Utils.convSave(self.currentSettings);
-	Turbine.Shell.WriteLine("Save enc_lockPosition='" .. tostring(enc_settings[ "s:lockPosition" ]) .. "'");
 	Turbine.PluginData.Save(Turbine.DataScope.Account, "BuffIcons_Settings", enc_settings)
 	--
 	CopySettings(self.savedSettings, self.currentSettings);
@@ -73,7 +71,6 @@ function ConfigurationManager:GetSetting(name)
 end
 
 function ConfigurationManager:ChangeSetting(name, new_value)
-	Turbine.Shell.WriteLine("Set setting '" .. name .. "' to '" .. tostring(new_value) .. "'");
 	self.currentSettings[name] = new_value;
 	LynxPlugins.Utils.ExecuteCallback(self, "SettingChanged", { Key = name, Value = new_value });
 end

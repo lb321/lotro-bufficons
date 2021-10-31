@@ -309,7 +309,6 @@ function BuffIconWindow:MouseDown(args)
 	if ( args.Button == Turbine.UI.MouseButton.Left ) then
 		self.dragStartX = args.X;
 		self.dragStartY = args.Y;
-		Turbine.Shell.WriteLine("Start dragging");
 		self.dragging = true;
 	end
 
