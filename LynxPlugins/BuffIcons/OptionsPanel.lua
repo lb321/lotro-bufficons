@@ -19,27 +19,32 @@ function OptionPanel:Constructor(cfgManager)
 		end
 	end
 
-	self.positionXLabel = LynxPlugins.Utils.Label("Horizontal Position");
-	self.positionXLabel:SetSize(180, 20);
-	self.positionXLabel:SetPosition(10, 10);
-	self.positionXLabel:SetParent(self.mainPanel);
+	self.maxDurationLabel = LynxPlugins.Utils.Label("Maxmimum Buff Duration");
+	self.maxDurationLabel:SetSize(180, 20);
+	self.maxDurationLabel:SetPosition(10, 40);
+	self.maxDurationLabel:SetParent(self.mainPanel);
 
-	self.positionX = LynxPlugins.Utils.NumericInput();
-	self.positionX:SetValue(self.sm:GetSetting("positionX"));
-	self.positionX:SetPosition(200, 10);
-	self.positionX:SetParent(self.mainPanel);
-	self.positionX.ValueChanged = self.ValueChangedCallback;
+	self.maxDuration = LynxPlugins.Utils.NumericInput();
+	self.maxDuration:SetValue(self.sm:GetSetting("maxDuration"));
+	self.maxDuration:SetPosition(200, 40);
+	self.maxDuration:SetParent(self.mainPanel);
+	self.maxDuration.ValueChanged = self.ValueChangedCallback;
 
-	self.positionYLabel = LynxPlugins.Utils.Label("Vertical Position");
-	self.positionYLabel:SetSize(180, 20);
-	self.positionYLabel:SetPosition(10, 40);
-	self.positionYLabel:SetParent(self.mainPanel);
 
-	self.positionY = LynxPlugins.Utils.NumericInput();
-	self.positionY:SetValue(self.sm:GetSetting("positionY"));
-	self.positionY:SetPosition(200, 40);
-	self.positionY:SetParent(self.mainPanel);
-	self.positionY.ValueChanged = self.ValueChangedCallback;
+	self.lockPositionLabel = LynxPlugins.Utils.Label("Lock Position");
+	self.lockPositionLabel:SetSize(180, 20);
+	self.lockPositionLabel:SetPosition(10, 10);
+	self.lockPositionLabel:SetParent(self.mainPanel);
+
+	self.lockPosition = Turbine.UI.Lotro.CheckBox();
+	self.lockPosition:SetParent( self.mainPanel );
+	self.lockPosition:SetChecked( self.sm:GetSetting("lockPosition") );
+	self.lockPosition:SetPosition( 200, -5 );
+	self.lockPosition:SetText("");
+
+	LynxPlugins.Utils.AddCallback(self.lockPosition, "CheckedChanged", function (sender, args) 
+		self.ValueChangedCallback(self.lockPosition,  { Value = self.lockPosition:IsChecked() });
+    end);
 
 	self.iconsPerLineLabel = LynxPlugins.Utils.Label("Icons per Line");
 	self.iconsPerLineLabel:SetSize(180, 20);
@@ -92,8 +97,8 @@ function OptionPanel:Constructor(cfgManager)
 
 	-- create a control(-reference)=>config parameter table
 	self.controlName = {
-		[self.positionX] = "positionX",
-		[self.positionY] = "positionY",
+		[self.maxDuration] = "maxDuration",
+		[self.lockPosition] = "lockPosition",
 		[self.iconsPerLine] = "iconsPerLine",
 		[self.sortCriteria] = "sortCriteria",
 		[self.showFractional] = "showFractional",
@@ -142,8 +147,8 @@ end
 
 -- synchronize controls with configuration
 function OptionPanel:Initialize()
-	self.positionX:SetValue(self.sm:GetSetting("positionX"));
-	self.positionY:SetValue(self.sm:GetSetting("positionY"));
+	self.maxDuration:SetValue(self.sm:GetSetting("maxDuration"));
+	self.lockPosition:IsChecked(self.sm:GetSetting("lockPosition"));
 	self.iconsPerLine:SetValue(self.sm:GetSetting("iconsPerLine"));
 	self.sortCriteria:SetSelection(self.sm:GetSetting("sortCriteria"));
 	self.showFractional:SetSelection(self.sm:GetSetting("showFractional"));

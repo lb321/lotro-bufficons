@@ -72,6 +72,7 @@ function BuffIconWindow:Initialize()
 	end
 
 	-- load settings
+	self:SetMouseVisible( not self.sm:GetSetting("lockPosition") );
 	self.x = self.sm:GetSetting("positionX");
 	self.y = self.sm:GetSetting("positionY");
 	self.spacing = self.sm:GetSetting("spacing");
@@ -80,6 +81,7 @@ function BuffIconWindow:Initialize()
 	self.showFractional = self.sm:GetSetting("showFractional");
 	self.sortCriteria = self.sm:GetSetting("sortCriteria");
 	self.compare1 = self:GetCompareFunc(self.sortCriteria);
+	self.maxBuffDuration = self.sm:GetSetting("maxDuration");
 	if not self.compare1 then
 		self.compare1 = BuffIconWindow.CompareRemainingDuration;
 	end
@@ -99,8 +101,14 @@ function BuffIconWindow:UpdateWindowGeometry()
 	self.gridHeight = 52 + self.spacing;
 	self.width = self.iconsPerLine * self.gridWidth;
 
-	self:SetPosition(Turbine.UI.Display:GetWidth() - self.x - self.width, self.y);
+	self:SetPosition(self.x, self.y);
 	self:SetSize(self.width, self.gridHeight);
+
+	if (self.IsMouseVisible()) then -- the mouse is visible, so show the drag area
+		self:SetBackColor(Turbine.UI.Color( 0.5, 1, 1, 1));
+	else 
+		self:SetBackColor(Turbine.UI.Color( 0, 0, 0, 0));
+	end
 end
 
 function BuffIconWindow:GetCompareFunc(value)
@@ -118,9 +126,16 @@ function BuffIconWindow:UpdateSetting(name, value)
 	if name == "sortCriteria" then
 		-- need to reload all effects, so just do full initialization
 		self:Initialize();
+	elseif name == "lockPosition" then
+		if (value) then -- the window should be locked
+			self:SetMouseVisible(false);
+		else 
+			self:SetMouseVisible(true);
+		end
+		self:UpdateWindowGeometry();
 	elseif name == "positionX" then
 		self.x = value;
-		self:SetLeft(Turbine.UI.Display:GetWidth() - value - self.width);
+		self:SetLeft(value);
 	elseif name == "positionY" then
 		self.y = value;
 		self:SetTop(value);
@@ -152,6 +167,10 @@ end
 function BuffIconWindow:AddEffect( effectIndex )
 	if not self.initialized then return end
 	local effect = self.player:GetEffects():Get( effectIndex );
+
+	if (effect:GetDuration() > self.maxBuffDuration) then
+		return;
+	end
 
 	local effectDisplay = BuffIconDisplay();
 	effectDisplay:SetEffect( effect );
@@ -283,4 +302,31 @@ function BuffIconWindow.CompareIcon(effect1, effect2)
 	if i1 < i2 then return -1;
 	elseif i2 < i1 then return 1; end
 	return 0;
+end
+
+function BuffIconWindow:MouseDown(args) 
+
+	if ( args.Button == Turbine.UI.MouseButton.Left ) then
+		self.dragStartX = args.X;
+		self.dragStartY = args.Y;
+		Turbine.Shell.WriteLine("Start dragging");
+		self.dragging = true;
+	end
+
+end
+
+function BuffIconWindow:MouseMove(args) 
+	local left, top = self:GetPosition();
+	
+	if ( self.dragging ) then
+		self.sm:ChangeSetting("positionX",  left + ( args.X - self.dragStartX ));
+		self.sm:ChangeSetting("positionY",  top + ( args.Y - self.dragStartY ));
+	end
+end
+
+
+function BuffIconWindow:MouseUp( args )
+	if ( args.Button == Turbine.UI.MouseButton.Left ) then
+		self.dragging = false;
+	end
 end
